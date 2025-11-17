@@ -25,10 +25,10 @@ class Motorcycle(Vehicle):
         sidecar_status = "with sidecar" if self.has_sidecar else "without sidecar"
         return f"{base_info}, {sidecar_status}"
 
-vehicle1 = Vehicle("Toyota", 2020)
+vehicle1 = Vehicle("Toyota", 2012)
 car1 = Car("Tesla", 2023, 4)
 motorcycle1 = Motorcycle("Yamaha", 2022, True)
-motorcycle2 = Motorcycle("Honda", 2021, False)
+motorcycle2 = Motorcycle("kawasaki", 2021, False)
 
 print(vehicle1.display_info())
 print(car1.display_info())
