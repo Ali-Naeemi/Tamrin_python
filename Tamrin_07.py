@@ -1,118 +1,90 @@
 import csv
-import os
 
 class Contact:
+    
     def __init__(self, name, phone_number):
         self.name = name
-        if not phone_number.isdigit():
-            raise ValueError("Shomare telephone bayad faghat [adad] bashad .\n")
-        self.phone_number = phone_number
+        
+        if phone_number.isdigit():
+            self.phone_number = phone_number
+        else:
+            raise ValueError("Phone number can digits only.")
 
-    def __str__(self):
-        return f"{self.name}: {self.phone_number}"
 
 class PhoneBook:
+    
     def __init__(self):
         self.contacts = []
     
     def add_contact(self, name, phone):
-        try:
-            contact = Contact(name, phone)
-            self.contacts.append(contact)
-            print(f"Mokhatab '{name}' save shod.\n")
-        except ValueError as e:
-            raise ValueError(f"Format shomare eshtebah ast: {e}")
+        new_contact = Contact(name, phone)
+        self.contacts.append(new_contact)
+        print(f"contact {name} added")
     
-    def show_all(self):
-        if not self.contacts:
-            print("Dafterche telephone khali ast .\n")
-            return
-        print("List mokhatabin : \n")
-        for i, contact in enumerate(self.contacts, 1):
-            print(f"{i}. {contact}")
-        print()
-    
-    def save_to_csv(self, filename="Contacts.csv"):
+    def save_to_csv(self):
         try:
-            with open(filename, "w", newline="", encoding="utf-8") as f:
-                writer = csv.writer(f)
-                writer.writerow(["Name", "Phone"])
-                for contact in self.contacts:
-                    writer.writerow([contact.name, contact.phone_number])
-            print(f"Mokhatab dar file '{filename}' save shod.")
+            with open("Contact.csv", "w", newline="", encoding="UTF-8") as file:
+                writer = csv.writer(file)
+                writer.writerow(["Name", "Phone Number"])
+                for c in self.contacts:
+                    writer.writerow([c.name, c.phone_number])
+                print("saved ...")
         except PermissionError:
-            print("Emkane neveshtan dar file vojod nadarad (shayad file baz ast).\n")
-        except Exception as e:
-            print(f"Khataye nashenakhte dar save kardan: {e}")
+            print("Unable to write to file.")
     
-    def load_from_csv(self, filename="Contacts.csv"):
-        if not os.path.exists(filename):
-            print("\nFile mokhatabin peida nashod. Daftere jadid igad mishavad.\n")
-            return
-        
-        loaded_contacts = []
+    def load_from_csv(self):
         try:
-            with open(filename, "r", encoding="utf-8") as f:
-                reader = csv.reader(f)
+            with open("Contact.csv", "r", encoding="UTF-8") as file:
+                reader = csv.reader(file)
                 next(reader)
-                
-                for row_num, row in enumerate(reader, 1):
-                    try:
-                        if len(row) < 2:
-                            continue
-                        name, phone = row[0], row[1]
-                        if not phone.isdigit():
-                            raise ValueError
-                        contact = Contact(name, phone)
-                        loaded_contacts.append(contact)
-                    except ValueError:
-                        print(f"Dade namotabar dar satr {row_num} ignore shod.\n")
-                    except Exception as e:
-                        print(f"Khata dar pardazesh satr {row_num}: {e}")
-            
-            self.contacts = loaded_contacts
-            print(f"\nEtelaat az file '{filename}' load shod.\n")
+                for row in reader:
+                    if len(row) >= 2:
+                        name = row[0]
+                        phone = row[1]
+                        try:
+                            self.add_contact(name, phone)
+                        except ValueError:
+                            print(f"Invalid phone number for {name}: {phone}")
         except FileNotFoundError:
-            print("File mokhatabin peida nashod.\n")
-        except Exception as e:
-            print(f"Khata dar reed file: {e}")
+            self.contacts = []
+
 
 def main():
     phonebook = PhoneBook()
-    phonebook.load_from_csv()
     
     while True:
-        print("\nSystem modiriyat mokhatabin")
-        print("=" * 30)
-        print("1. Afzoodan mokhatab")
-        print("2. Namayesh all mokhatabin")
-        print("3. Save & khorooj")
-        print("=" * 30)
+        print("\nPhoneBock Menu :")
+        print("1. Add Contact")
+        print("2. All Contact")
+        print("3. Save & Exit")
         
-        try:
-            choice = int(input("Lotfan gozine mored nazar ra vared konid: "))
-        except ValueError:
-            print("Lotfan adad vared konid.\n")
-            continue
+        choice = input("Enter your choice (1-3): ")
         
-        if choice == 1:
-            name = input("Name mokhatab: ").strip()
-            phone = input("Shomare telephone: ").strip()
+        if choice == "1":
+            name = input("Enter name: ")
+            phone = input("Enter phone number: ")
             try:
                 phonebook.add_contact(name, phone)
-            except ValueError as e:
-                print(f"{e} Try again.")
+            except ValueError:
+                print("The number format is wrong. try again.")
         
-        elif choice == 2:
-            phonebook.show_all()
+        elif choice == "2":
+            print("\nAll Contacts :")
+            if not phonebook.contacts:
+                print("No contacts available.")
+            else:
+                for i in range(len(phonebook.contacts)):
+                    contact = phonebook.contacts[i]
+                    print(f"{i+1}. Name: {contact.name}, Phone: {contact.phone_number}")
         
-        elif choice == 3:
+        elif choice == "3":
             phonebook.save_to_csv()
-            print("Exiting...")
+            print("Saved . Exiting ...")
             break
         
         else:
-            print("Gozine namotabar. Lotfan adad [1,2,3] vared konid.")
+            print("Wrong choice. please enter 1 or 2 or 3.")
+
 
 if __name__ == "__main__":
     main()
